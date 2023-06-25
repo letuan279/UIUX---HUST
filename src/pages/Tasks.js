@@ -10,6 +10,10 @@ import {
     Button,
     Avatar,
     Typography,
+    Form,
+    Input,
+    Modal,
+    DatePicker
 } from "antd";
 
 import { ToTopOutlined } from "@ant-design/icons";
@@ -28,8 +32,119 @@ import face4 from "../assets/images/face-4.jpg";
 import face5 from "../assets/images/face-5.jpeg";
 import face6 from "../assets/images/face-6.jpeg";
 import pencil from "../assets/images/pencil.svg";
+import { useState } from "react";
 
 const { Title } = Typography;
+
+const CreateForm = (props) => {
+    const { visible, setVisible, onCreate } = props;
+    const [form] = Form.useForm();
+
+    const onChange = (date, dateString) => {
+        console.log(date, dateString);
+    };
+
+    const handleCreate = () => {
+        form
+        .validateFields()
+        .then((values) => {
+            form.resetFields();
+            onCreate(values);
+        })
+        
+        .catch((info) => {
+            console.log("Validate Failed:", info);
+        });
+        setVisible(false);
+    };
+    return (
+        <Modal
+            visible={visible}
+            title="Add New Task"
+            okText="Ok"
+            onCancel={() => {
+                setVisible(false);
+            }}
+            onOk={handleCreate}
+        >
+            <Form form={form} layout="vertical">
+                <Form.Item
+                    label="Tên công việc"
+                    name="title"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Trạng thái"
+                    name="status"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item 
+                    name="startDay" 
+                    label="ngày bắt đầu"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <DatePicker onChange={onChange} style={{ width: '60%', height: '35px' }}/>
+                </Form.Item>
+                <Form.Item 
+                    name="endDay" 
+                    label="Dự kiến kết thúc"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <DatePicker onChange={onChange} style={{ width: '60%', height: '35px' }}/>
+                </Form.Item>
+                <Form.Item
+                    label="Người giao việc"
+                    name="giaoViec"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Người thực hiện"
+                    name="thucHien"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+                {/* <Form.Item
+                    label="Người hỗ trợ"
+                    name="hotro"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Người đánh giá"
+                    name="danhGia"
+                    rules={[
+                        { required: true, message: "Please input this field" }
+                    ]}
+                >
+                    <Input />
+                </Form.Item>             */}
+            </Form>
+        </Modal>
+    );
+};
+
 
 const formProps = {
     name: "file",
@@ -591,48 +706,38 @@ const dataproject = [
     },
 ];
 
-function Tasks() {
+function Tasks({ state, onSave, onCancel }) {
     const onChange = (e) => console.log(`radio checked:${e.target.value}`);
+    // const [form] = Form.useForm();
+    const [visible, setVisible] = useState(false);
+
+      const onCreate = (values) => {
+        onChange(values);
+        setVisible(false);
+  };
 
     return (
         <>
             <div className="tabled">
                 <Row gutter={[24, 0]}>
                     <Col xs="24" xl={24}>
-                        {/* <Card
-                            bordered={false}
-                            className="criclebox tablespace mb-24"
-                            title="Authors Table"
-                            extra={
-                                <>
-                                    <Radio.Group onChange={onChange} defaultValue="a">
-                                        <Radio.Button value="a">All</Radio.Button>
-                                        <Radio.Button value="b">ONLINE</Radio.Button>
-                                    </Radio.Group>
-                                </>
-                            }
-                        >
-                            <div className="table-responsive">
-                                <Table
-                                    columns={columns}
-                                    dataSource={data}
-                                    pagination={false}
-                                    className="ant-border-space"
-                                />
-                            </div>
-                        </Card> */}
-
                         <Card
                             bordered={false}
                             className="criclebox tablespace mb-24"
                             title="Danh sách"
                             extra={
                                 <>
-                                    <Radio.Group onChange={onChange} defaultValue="all">
-                                        <Radio.Button value="all">All</Radio.Button>
-                                        <Radio.Button value="online">ONLINE</Radio.Button>
-                                        <Radio.Button value="store">STORES</Radio.Button>
-                                    </Radio.Group>
+                                    <Button
+                                        type="primary"
+                                        onClick={() => setVisible(true)}
+                                    >
+                                        Add New Task
+                                    </Button>
+                                    <CreateForm
+                                    visible={visible}
+                                    setVisible={setVisible}
+                                    onCreate={onCreate}
+                                    />
                                 </>
                             }
                         >
@@ -644,17 +749,6 @@ function Tasks() {
                                     className="ant-border-space"
                                 />
                             </div>
-                            {/* <div className="uploadfile pb-15 shadow-none">
-                                <Upload {...formProps}>
-                                    <Button
-                                        type="dashed"
-                                        className="ant-full-box"
-                                        icon={<ToTopOutlined />}
-                                    >
-                                        Click to Upload
-                                    </Button>
-                                </Upload>
-                            </div> */}
                         </Card>
                     </Col>
                 </Row>
